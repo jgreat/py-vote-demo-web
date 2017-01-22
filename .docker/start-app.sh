@@ -1,3 +1,3 @@
 #!/bin/bash
 
-exec gunicorn -c ./gunicorn.py main:app
+exec /usr/local/bin/gunicorn -c ./gunicorn.py main:app
