@@ -1,6 +1,8 @@
 FROM python:3.6.0-alpine
 MAINTAINER Team STAR-LORD
 
+RUN apk --no-cache add bash curl jq
+
 #add repo
 ADD . /app
 
