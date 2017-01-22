@@ -1,7 +1,7 @@
 build:
   image: python:3.6.0
   commands:
-    - echo 'tags: ["jgreat_py-vote-demo-web_$${BRANCH}_0.1.0_$${BUILD_NUMBER}_$${COMMIT:0:8}"]' > .droneTags.yml
+    - 'echo tags: "[\"jgreat_py-vote-demo-web_$${BRANCH}_0.1.0_$${BUILD_NUMBER}_$${COMMIT:0:8}\"]" > .droneTags.yml'
     - pip install -r requirements.txt
 
 cache:
