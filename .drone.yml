@@ -1,7 +1,8 @@
 build:
   image: python:3.6.0
   commands:
-    - "pip install -r requirements.txt"
+    - echo 'tags: ["jgreat_py-vote-demo-web_$${BRANCH}_0.1.0_$${BUILD_NUMBER}_$${COMMIT:0:8}"]' > .droneTags.yml
+    - pip install -r requirements.txt
 
 cache:
   mount:
@@ -17,8 +18,6 @@ publish:
     password: $$DOCKER_PASS
     email: $$DOCKER_EMAIL
     repo: jgreat/py-vote-demo-web
-    tags:
-      - jgreat_py-vote-demo-web_$${BRANCH}_0.1.0_$${BUILD_NUMBER}_$${COMMIT:0:8}
 
 deploy:
   # Deploy to Rancher Enviornment via Cowpoke Service
