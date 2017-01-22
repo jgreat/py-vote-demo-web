@@ -1,0 +1,34 @@
+build:
+  image: python:3.6.0
+  commands:
+    - "pip install -r requirements.txt"
+
+cache:
+  mount:
+    - node_modules
+    - .git
+
+publish:
+  # Publish to DockerHub - Custom drone-docker, runs on "remote" docker instance.
+  docker:
+    image: jgreat/drone-docker
+    docker_host: tcp://cowpoke.leankitdev.com:2375
+    username: $$DOCKER_USER
+    password: $$DOCKER_PASS
+    email: $$DOCKER_EMAIL
+    repo: jgreat/py-vote-demo-web
+
+deploy:
+  # Deploy to Rancher Enviornment via Cowpoke Service
+  cowpoke:
+    image: leankit/drone-cowpoke
+    docker_username: $$DOCKER_USER
+    docker_password: $$DOCKER_PASS
+    docker_repo: jgreat/py-vote-demo-web
+    catalog_repo: jgreat/rancher-py-vote-demo-web
+    github_token: $$GITHUB_TOKEN
+    github_user: $$GITHUB_USER
+    github_email: $$GITHUB_EMAIL
+    cowpoke_url: https://cowpoke.leankitdev.com:9300
+    rancher_catalog_name: py-vote-demo-web
+    bearer_token: $$COWPOKE_API_KEY
