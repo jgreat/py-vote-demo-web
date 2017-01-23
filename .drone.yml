@@ -7,7 +7,7 @@ build:
     - 'echo tags: "[\"jgreat_py-vote-demo-web_$${BRANCH}_${VERSION}_${NOW}_$${COMMIT:0:8}\"]" > .droneTags.yml'
     # Set up virtualenv
     - 'pip install virtualenv'
-    - 'virtualenv ./venv'
+    - 'virtualenv --relocatable ./venv'
     - '. ./venv/bin/activate'
     # Install requirements
     - 'pip install -r requirements.txt'
