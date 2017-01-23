@@ -1,7 +1,8 @@
 FROM python:3.6.0-alpine
-MAINTAINER Team STAR-LORD
+MAINTAINER Jason Greathouse (jgreat@jgreat.me)
 
-RUN apk --no-cache add bash curl jq
+RUN apk --no-cache add bash curl jq && \
+    pip install virtualenv
 
 #add repo
 ADD . /app

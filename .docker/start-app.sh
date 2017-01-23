@@ -1,3 +1,3 @@
 #!/bin/bash
-
-exec /usr/local/bin/gunicorn -c ./gunicorn.py main:app
+. .venv/bin/activate
+exec gunicorn -c ./gunicorn.py main:app
