@@ -8,7 +8,7 @@ build:
     # Set up virtualenv
     - 'pip install virtualenv'
     - 'virtualenv ./venv'
-    - 'source ./venv/bin/activate'
+    - '. ./venv/bin/activate'
     # Install requirements
     - 'pip install -r requirements.txt'
     # Run tests here
