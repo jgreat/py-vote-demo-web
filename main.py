@@ -2,7 +2,7 @@ import os
 import socket
 import uuid
 import re
-import pika
+import rabbitpy
 import json
 from datetime import datetime, timezone
 from flask import Flask, request, render_template, make_response
@@ -46,16 +46,16 @@ app.logger.info('Connecting to RabbitMQ amqp://{}:****@{}:{}/{}'.format(
     CONFIG['rabbitmq']['port'],
     CONFIG['rabbitmq']['vhost']
 ))
-rabbitmq_config = pika.URLParameters('amqp://{}:{}@{}:{}/{}'.format(
+rmq_connection = rabbitpy.Connection('amqp://{}:{}@{}:{}/{}'.format(
     CONFIG['rabbitmq']['username'],
     CONFIG['rabbitmq']['password'],
     CONFIG['rabbitmq']['host'],
     CONFIG['rabbitmq']['port'],
     CONFIG['rabbitmq']['vhost']
 ))
-rabbitmq_connection = pika.BlockingConnection(rabbitmq_config)
-RMQ_CHANNEL = rabbitmq_connection.channel()
-RMQ_CHANNEL.queue_declare(queue=CONFIG['rabbitmq']['queue'])
+RMQ_CHANNEL = rmq_connection.channel()
+queue = rabbitpy.Queue(RMQ_CHANNEL, CONFIG['rabbitmq']['queue'])
+queue.declare()
 
 
 def main():
@@ -94,11 +94,10 @@ def root_post():
             'ts': int(datetime.now().replace(tzinfo=timezone.utc).timestamp() * 1000)
         })
         app.logger.debug(vote_data)
-        RMQ_CHANNEL.basic_publish(
-            exchange='',
-            routing_key=CONFIG['rabbitmq']['queue'],
-            body=vote_data
-        )
+
+        message = rabbitpy.Message(RMQ_CHANNEL, vote_data)
+        message.publish('', routing_key=CONFIG['rabbitmq']['queue'])
+
         resp = make_response(render_template('index.html', vote=vote))
         resp.set_cookie('voter_id', voter_id)
         return resp
