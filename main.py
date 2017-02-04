@@ -37,25 +37,24 @@ app = Flask(__name__)
 app.config.update(CONFIG)
 
 
-# Setup RabbitMQ Connection and Channel
-# We don't want to open and close RabbitMQ TCP connections on each request.
-# So we do it Global
+# Setup RabbitMQ Connection and declare queue.
 app.logger.info('Connecting to RabbitMQ amqp://{}:****@{}:{}/{}'.format(
     CONFIG['rabbitmq']['username'],
     CONFIG['rabbitmq']['host'],
     CONFIG['rabbitmq']['port'],
     CONFIG['rabbitmq']['vhost']
 ))
-rmq_connection = rabbitpy.Connection('amqp://{}:{}@{}:{}/{}'.format(
+AMQP_URI = 'amqp://{}:{}@{}:{}/{}'.format(
     CONFIG['rabbitmq']['username'],
     CONFIG['rabbitmq']['password'],
     CONFIG['rabbitmq']['host'],
     CONFIG['rabbitmq']['port'],
     CONFIG['rabbitmq']['vhost']
-))
-RMQ_CHANNEL = rmq_connection.channel()
-queue = rabbitpy.Queue(RMQ_CHANNEL, CONFIG['rabbitmq']['queue'])
-queue.declare()
+)
+with rabbitpy.Connection(AMQP_URI) as rmq_connection:
+    with rmq_connection.channel() as rmq_channel:
+        queue = rabbitpy.Queue(rmq_channel, CONFIG['rabbitmq']['queue'])
+        queue.declare()
 
 
 def main():
@@ -94,9 +93,13 @@ def root_post():
             'ts': int(datetime.now().replace(tzinfo=timezone.utc).timestamp() * 1000)
         })
         app.logger.debug(vote_data)
-
-        message = rabbitpy.Message(RMQ_CHANNEL, vote_data)
-        message.publish('', routing_key=CONFIG['rabbitmq']['queue'])
+        with rabbitpy.Connection(AMQP_URI) as rmq_connection:
+            with rmq_connection.channel() as rmq_channel:
+                message = rabbitpy.Message(rmq_channel, vote_data)
+                if message.publish('', routing_key=CONFIG['rabbitmq']['queue'], mandatory=True):
+                    app.logger.debug('Message publish confirmed by RabbitMQ')
+                else:
+                    app.logger.error('Failed to publish vote data')
 
         resp = make_response(render_template('index.html', vote=vote))
         resp.set_cookie('voter_id', voter_id)
