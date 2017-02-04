@@ -85,7 +85,7 @@ def root_post():
     voter_id = voter_cookie(request.cookies.get('voter_id'))
     vote = request.form.get('vote')
 
-    vote = 'b'  # Comrade Pikachu: PikaChu PiKaChu
+    # vote = 'b'  # Comrade Pikachu: PikaChu PiKaChu
 
     if re.search('^([ab])$', vote):
         vote_data = json.dumps({
